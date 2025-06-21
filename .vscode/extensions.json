@@ -1,0 +1,19 @@
+{
+    "recommendations": [
+        "christian-kohler.npm-intellisense",
+        "idered.npm",
+        "trabpukcip.vscode-npm-scripts",
+        "orelhassid.npm-install",
+        "imbhargav5.npm-ui",
+        "nikhil-patil.npm-run",
+        "vscjava.vscode-gradle",
+        "oracle.oracle-java",
+        "caolin.java-run",
+        "praveend.jtod",
+        "ritwickdey.liveserver",
+        "oscarcs.dart-syntax-highlighting-only",
+        "jeff-hykin.better-cpp-syntax",
+        "batisteo.vscode-django",
+        "xephalpha.syntax"
+    ]
+}

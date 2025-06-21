@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Mingkay Inventory</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .dashboard-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+        .dashboard-links a {
+            display: block;
+            padding: 40px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.5rem;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .dashboard-links a:hover {
+            transform: translateY(-5px);
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mingkay Inventory - Admin Dashboard</h1>
+            <form class="logout-form" action="/api/logout" method="POST"><button type="submit" class="logout-btn">Logout</button></form>
+        </header>
+        <div class="dashboard-links">
+            <a href="/employees.html">Manage Employees</a>
+            <a href="/inventory.html">Manage Inventory</a>
+            <a href="/sales.html">Manage Sales</a>
+            <a href="/audits.html">Manage Audits</a>
+        </div>
+    </div>
+</body>
+</html>

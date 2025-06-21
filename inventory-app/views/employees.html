@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Employees - Mingkay Inventory</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Manage Employees</h1>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <form class="logout-form" action="/api/logout" method="POST">
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </nav>
+        </header>
+
+        <form id="add-employee-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="position">Position</label>
+                <input type="text" id="position" name="position" required>
+            </div>
+            <div class="form-group">
+                <label for="hire_date">Hire Date</label>
+                <input type="date" id="hire_date" name="hire_date" required>
+            </div>
+            <div class="form-group">
+                <label for="photo">Photo</label>
+                <input type="file" id="photo" name="photo" accept="image/*">
+            </div>
+            <button type="submit">Add Employee</button>
+        </form>
+
+        <h2>Current Employees</h2>
+        <table id="employees-table">
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Hire Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Employee rows will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const form = document.getElementById('add-employee-form');
+        const tableBody = document.querySelector('#employees-table tbody');
+
+        async function fetchEmployees() {
+            const response = await fetch('/api/employees');
+            const employees = await response.json();
+            tableBody.innerHTML = '';
+            employees.forEach(emp => {
+                const row = tableBody.insertRow();
+                const photoCell = row.insertCell();
+                photoCell.innerHTML = emp.photo_path ? `<img src="/${emp.photo_path}" alt="${emp.name}" width="50" height="50" style="border-radius: 50%;">` : 'No Photo';
+                
+                row.insertCell().textContent = emp.name;
+                row.insertCell().textContent = emp.position;
+                row.insertCell().textContent = new Date(emp.hire_date).toLocaleDateString();
+                
+                const actionCell = row.insertCell();
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = () => deleteEmployee(emp.id);
+                actionCell.appendChild(deleteBtn);
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            
+            const response = await fetch('/api/employees', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                form.reset();
+                fetchEmployees();
+            } else {
+                alert('Failed to add employee.');
+            }
+        });
+
+        async function deleteEmployee(id) {
+            if (!confirm('Are you sure you want to delete this employee?')) return;
+
+            const response = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                fetchEmployees();
+            } else {
+                alert('Failed to delete employee.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchEmployees);
+    </script>
+</body>
+</html>

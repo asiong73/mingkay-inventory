@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - Mingkay Inventory</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .dashboard-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; text-align: center; }
+        .dashboard-links a { display: block; padding: 40px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 1.5rem; transition: transform 0.2s, background-color 0.2s; }
+        .dashboard-links a:hover { transform: translateY(-5px); background-color: #0056b3; }
+        .dashboard-links a.admin-link { background-color: #17a2b8; }
+        .dashboard-links a.admin-link:hover { background-color: #138496; }
+        #search-results { margin-top: 20px; }
+        #search-results h3 { border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+        #search-results ul { list-style-type: none; padding: 0; }
+        #search-results li { background: #f8f9fa; margin-bottom: 5px; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mingkay Inventory - Owner Dashboard</h1>
+            <form class="logout-form" action="/api/logout" method="POST"><button type="submit" class="logout-btn">Logout</button></form>
+        </header>
+
+        <h2>Global Record Search</h2>
+        <form id="search-form" style="grid-template-columns: 1fr auto; align-items: end;">
+            <div class="form-group">
+                <label for="search-term">Search by Name</label>
+                <input type="text" id="search-term" placeholder="e.g., John Doe, Laptop, etc." required>
+            </div>
+            <button type="submit" style="grid-column: auto;">Search</button>
+        </form>
+
+        <div id="search-results"></div>
+
+        <hr style="margin: 40px 0;">
+
+        <h2>Management Areas</h2>
+        <div class="dashboard-links">
+            <a href="/dashboard_admin.html" class="admin-link">Go to Admin View</a>
+            <a href="/employees.html">Manage Employees</a>
+            <a href="/inventory.html">Manage Inventory</a>
+            <a href="/sales.html">Manage Sales</a>
+            <a href="/audits.html">Manage Audits</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('search-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const term = document.getElementById('search-term').value;
+            const resultsContainer = document.getElementById('search-results');
+            resultsContainer.innerHTML = '<p>Searching...</p>';
+
+            try {
+                const response = await fetch(`/api/search?term=${encodeURIComponent(term)}`);
+                if (!response.ok) {
+                    throw new Error('Search failed.');
+                }
+                const results = await response.json();
+                displayResults(results);
+            } catch (error) {
+                resultsContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
+            }
+        });
+
+        function displayResults(results) {
+            const container = document.getElementById('search-results');
+            container.innerHTML = '';
+
+            if (Object.values(results).every(arr => arr.length === 0)) {
+                container.innerHTML = '<p>No records found.</p>';
+                return;
+            }
+
+            if (results.employees && results.employees.length > 0) {
+                container.innerHTML += '<h3>Employees</h3><ul>' +
+                    results.employees.map(item => `<li>ID: ${item.id} - ${item.name} (${item.position})</li>`).join('') +
+                    '</ul>';
+            }
+            if (results.inventory && results.inventory.length > 0) {
+                container.innerHTML += '<h3>Inventory</h3><ul>' +
+                    results.inventory.map(item => `<li>ID: ${item.id} - ${item.item_name} (Qty: ${item.quantity})</li>`).join('') +
+                    '</ul>';
+            }
+            if (results.sales && results.sales.length > 0) {
+                container.innerHTML += '<h3>Sales</h3><ul>' +
+                    results.sales.map(item => `<li>ID: ${item.id} - ${item.item_name} (Date: ${new Date(item.sale_date).toLocaleDateString()})</li>`).join('') +
+                    '</ul>';
+            }
+            if (results.audits && results.audits.length > 0) {
+                container.innerHTML += '<h3>Audits</h3><ul>' +
+                    results.audits.map(item => `<li>ID: ${item.id} - ${item.auditor_name} (Date: ${new Date(item.audit_date).toLocaleDateString()})</li>`).join('') +
+                    '</ul>';
+            }
+        }
+    </script>
+</body>
+</html>

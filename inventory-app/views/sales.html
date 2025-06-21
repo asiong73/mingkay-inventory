@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Sales - Mingkay Inventory</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Manage Sales</h1>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <form class="logout-form" action="/api/logout" method="POST">
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </nav>
+        </header>
+
+        <form id="add-sale-form">
+            <div class="form-group">
+                <label for="item_name">Item Name</label>
+                <input type="text" id="item_name" name="item_name" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity_sold">Quantity Sold</label>
+                <input type="number" id="quantity_sold" name="quantity_sold" required>
+            </div>
+            <div class="form-group">
+                <label for="total_price">Total Price</label>
+                <input type="number" step="0.01" id="total_price" name="total_price" required>
+            </div>
+             <div class="form-group">
+                <label for="sale_date">Sale Date</label>
+                <input type="date" id="sale_date" name="sale_date" required>
+            </div>
+            <button type="submit">Add Sale</button>
+        </form>
+
+        <h2>Sales Records</h2>
+        <table id="sales-table">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Quantity Sold</th>
+                    <th>Total Price</th>
+                    <th>Sale Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Sales records will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const form = document.getElementById('add-sale-form');
+        const tableBody = document.querySelector('#sales-table tbody');
+
+        async function fetchItems() {
+            const response = await fetch('/api/sales');
+            const items = await response.json();
+            tableBody.innerHTML = '';
+            items.forEach(item => {
+                const row = tableBody.insertRow();
+                row.insertCell().textContent = item.item_name;
+                row.insertCell().textContent = item.quantity_sold;
+                row.insertCell().textContent = `$${Number(item.total_price).toFixed(2)}`;
+                row.insertCell().textContent = new Date(item.sale_date).toLocaleDateString();
+                
+                const actionCell = row.insertCell();
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = () => deleteItem(item.id);
+                actionCell.appendChild(deleteBtn);
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            const response = await fetch('/api/sales', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                form.reset();
+                fetchItems();
+            } else {
+                alert('Failed to add sale record.');
+            }
+        });
+
+        async function deleteItem(id) {
+            if (!confirm('Are you sure you want to delete this record?')) return;
+            const response = await fetch(`/api/sales/${id}`, { method: 'DELETE' });
+            if (response.ok) fetchItems(); else alert('Failed to delete record.');
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchItems);
+    </script>
+</body>
+</html>
