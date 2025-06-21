@@ -1,0 +1,19 @@
+# GitHub Pages build settings
+
+# The theme to use for your site
+theme: jekyll-theme-primer
+
+# The title and description for your site
+title: Mingkay Inventory
+description: An inventory management application.
+
+# Exclude from processing.
+# The following items will not be processed by Jekyll. This is the most
+# important part of the fix for your build error.
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - Gemfile
+  - Gemfile.lock
+  - inventory-app/node_modules/
+  - vendor/
